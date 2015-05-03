@@ -1,1 +1,6 @@
 env
+*.pyc
+posts/*.pyc
+tests/*.pyc
+.profile
+migrations/
