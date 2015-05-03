@@ -1,3 +1,5 @@
+# Dennis, The tests pass but i still think they are wrong. Lets discuss on Monday.
+
 import unittest
 import os
 import json
@@ -145,7 +147,35 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(post["title"], "Another test")
         self.assertEqual(post["body"], "Post with bells and whistles")
         
-    
+    def testGetPostsWithTitleBody(self):
+        """ Filtering posts by title and body"""
+        postA = models.Post(title="Post with bells", body="Post with bells")
+        postB = models.Post(title="Post with whistles", body="Post with whistles")
+        postC = models.Post(title="Post with bells", body="Post with whistles")
+        postD = models.Post(title="Post with whistles", body="Post with bells")
+        postE = models.Post(title="Post with bells and whistles",
+                            body="Post with bells and whistles")
+        
+        session.add_all([postA, postB, postC, postD, postE])
+        session.commit()
+
+        response = self.client.get("/api/posts?title_like=whistles&body_like=bells",
+            headers=[("Accept", "application/json")]
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.mimetype, "application/json")
+
+        posts = json.loads(response.data)
+        self.assertEqual(len(posts), 2)
+
+        post = posts[0]
+        self.assertEqual(post["title"], "Post with whistles")
+        self.assertEqual(post["body"], "Post with bells")
+
+        post = posts[1]
+        self.assertEqual(post["title"], "Post with bells and whistles")
+        self.assertEqual(post["body"], "Post with bells and whistles")
         
 if __name__ == "__main__":
     unittest.main()
