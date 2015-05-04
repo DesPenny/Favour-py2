@@ -282,75 +282,32 @@ class TestAPI(unittest.TestCase):
     def testPostEdit(self):
         """ Testing the edit an existing post """
         # First, create a new post
-        data = {
-            "title": "Example Post",
-            "body": "Just a test"
+        data_inject = {
+            "title": "This Post has been updated",
+            "body": "The body has been edited"
         }
-
-        response = self.client.post("/api/posts",
-            data=json.dumps(data),
-            content_type="application/json",
-            headers=[("Accept", "application/json")]
-        )
-
+        
+        postA = models.Post(title="Example Post A", body="Just a test")
+        
+        session.add_all([postA])
+        session.commit()
+  
+        #Now edit the post with new data
+        response = self.client.put("/api/posts/{}".format(postA.id),
+                                      data=json.dumps(data_inject),
+                                      content_type="application/json",
+                                      headers=[("Accept", "application/json")])
+        
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.mimetype, "application/json")
-        self.assertEqual(urlparse(response.headers.get("Location")).path,
-                         "/api/posts/1")
 
         data=json.loads(response.data)
-        self.assertEqual(data["id"], 1)
-        self.assertEqual(data["title"], "Example Post")
-        self.assertEqual(data["body"], "Just a test")
-
-        posts = session.query(models.Post).all()
-        self.assertEqual(len(posts), 1)
-
-        post = posts[0]
-        self.assertEqual(post.title, "Example Post")
-        self.assertEqual(post.body, "Just a test")
         
-        #Getting the post
-        response = self.client.get("/api/posts/1",
-                                   headers=[("Accept", "application/json")]
-        )
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.mimetype, "application/json")
-
-        data = json.loads(response.data)
-        
-        self.assertEqual(data["id"], 1)
-        self.assertEqual(data["title"], "Example Post")
-        self.assertEqual(data["body"], "Just a test")
-        
-        #Editing the post or PUTing
-        data = {
-            "title": "This Post has been updated",
-            "body": "And The body has been edited"
-        }
-        response = self.client.put("/api/posts/1",
-            data = json.dumps(data),
-            content_type="application/json",
-            headers=[("Accept", "application/json")]
-        )
-
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.mimetype, "application/json")
-        self.assertEqual(urlparse(response.headers.get("Location")).path,
-                         "/api/posts/1")
-
-        data = json.loads(response.data)
-        self.assertEqual(data["id"], 2)
+        self.assertEqual(len(data),3)
+        # Test that it contains the new data
         self.assertEqual(data["title"], "This Post has been updated")
-        self.assertEqual(data["body"], "And The body has been edited")
-
-        posts = session.query(models.Post).all()
-        self.assertEqual(len(posts), 2)
-
-        post = posts[1]
-        self.assertEqual(post.title, "This Post has been updated")
-        self.assertEqual(post.body, "And The body has been edited")
+        self.assertEqual(data["body"], "The body has been edited")
+        
         
         
 if __name__ == "__main__":

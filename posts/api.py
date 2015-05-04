@@ -133,18 +133,12 @@ def posts_edit(id):
         return Response(json.dumps(data), 422, mimetype="application/json")
     
     # Add the post to the database
-    post = models.Post(title=data["title"], body=data["body"])
-    session.add(post)
+    post.title=data["title"]
+    post.body=data["body"]
     session.commit()
-    """
-    # Return the post as JSON
+    
     data = json.dumps(post.as_dictionary())
-    return Response(data, 201, mimetype="application/json")
-    data = request.json
-    # Return the post as JSON
-    """
-    data = json.dumps(post.as_dictionary())
-    headers = {"Location": url_for("post_get", id=1)}
+    headers = {"Location": url_for("post_get", id=post.id)}
     return Response(data, 201, headers=headers,
                     mimetype="application/json")
                     
