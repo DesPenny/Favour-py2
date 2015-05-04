@@ -62,7 +62,25 @@ class TestAPI(unittest.TestCase):
         postB = data[1]
         self.assertEqual(postB["title"], "Example Post B")
         self.assertEqual(postB["body"], "Still a test")            
-            
+    
+    def testDelPost(self):
+        """Deleting a single post from a populated database""" 
+        postA = models.Post(title="Example Post A", body="Just a test")
+        
+        session.add_all([postA])
+        session.commit()
+
+        response = self.client.get("/api/posts/{}".format(postA.id),
+                                      headers=[("Accept", "application/json")])
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.mimetype, "application/json")
+
+        data = json.loads(response.data)
+        self.assertEqual(data, [])        
+              
+    
+        
     def testGetNonExistentPost(self):
             """ Getting a single post which doesn't exist """
             response = self.client.get("/api/posts/1",
@@ -321,14 +339,14 @@ class TestAPI(unittest.TestCase):
                          "/api/posts/1")
 
         data = json.loads(response.data)
-        self.assertEqual(data["id"], 1)
+        self.assertEqual(data["id"], 2)
         self.assertEqual(data["title"], "This Post has been updated")
         self.assertEqual(data["body"], "And The body has been edited")
 
         posts = session.query(models.Post).all()
-        self.assertEqual(len(posts), 1)
+        self.assertEqual(len(posts), 2)
 
-        post = posts[0]
+        post = posts[1]
         self.assertEqual(post.title, "This Post has been updated")
         self.assertEqual(post.body, "And The body has been edited")
         

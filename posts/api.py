@@ -39,7 +39,7 @@ def posts_get():
     data = json.dumps([post.as_dictionary() for post in posts])
     return Response(data, 200, mimetype="application/json")
   
-@app.route("/api/posts/<id>", methods=["GET"])
+@app.route("/api/posts/<int:id>", methods=["GET"])
 @decorators.accept("application/json")
 def post_get(id):
         """ Single post endpoint """
@@ -56,8 +56,8 @@ def post_get(id):
         # Return the post as JSON
         data = json.dumps(post.as_dictionary())
         return Response(data, 200, mimetype="application/json")
-"""      
-@app.route("/api/posts/<id>", methods=["DELETE"])
+      
+@app.route("/api/posts/<int:id>", methods=["DELETE"])
 @decorators.accept("application/json")
 def post_delete(id):
         # Single post endpoint 
@@ -72,10 +72,13 @@ def post_delete(id):
             return Response(data, 404, mimetype="application/json")
 
         # Return the post as JSON
-        success = "Successfully deleted post with id {}".format(id)
-        data = json.dumps({"message": success})
-        return Response(data, 200, mimetype="application/json")
- """     
+        #success = "Successfully deleted post with id {}".format(id)
+        #data = json.dumps({"message": success})
+        #return Response(data, 204, mimetype="application/json")
+        # Convert the posts to JSON and return a response
+        data = json.dumps([post.as_dictionary() for post in posts])
+        return Response(data, 204, mimetype="application/json")
+  
 @app.route("/api/posts", methods=["POST"])
 @decorators.accept("application/json")
 @decorators.require("application/json")
