@@ -302,8 +302,9 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(response.mimetype, "application/json")
 
         data=json.loads(response.data)
-        
-        self.assertEqual(len(data),3)
+        # Test number of posts
+        posts = session.query(models.Post).all()
+        self.assertEqual(len(posts), 1)
         # Test that it contains the new data
         self.assertEqual(data["title"], "This Post has been updated")
         self.assertEqual(data["body"], "The body has been edited")
