@@ -70,14 +70,16 @@ class TestAPI(unittest.TestCase):
         session.add_all([postA])
         session.commit()
 
-        response = self.client.get("/api/posts/{}".format(postA.id),
+        response = self.client.delete("/api/posts/{}".format(postA.id),
                                       headers=[("Accept", "application/json")])
         
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 204)
         self.assertEqual(response.mimetype, "application/json")
 
-        data = json.loads(response.data)
-        self.assertEqual(data, [])        
+        posts = session.query(models.Post).all()
+        self.assertEqual(len(posts), 0)  
+                
+                
               
     
         

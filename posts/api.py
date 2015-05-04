@@ -57,12 +57,12 @@ def post_get(id):
         data = json.dumps(post.as_dictionary())
         return Response(data, 200, mimetype="application/json")
       
-@app.route("/api/posts/<int:id>", methods=["DELETE"])
+@app.route("/api/posts/<id>", methods=["DELETE"])
 @decorators.accept("application/json")
 def post_delete(id):
         # Single post endpoint 
         # Delete the post from the database
-        post = session.query(models.Post).delete(id)
+        post = session.query(models.Post).get(id)
 
         # Check whether the post exists
         # If not return a 404 with a helpful message
@@ -70,14 +70,15 @@ def post_delete(id):
             message = "Could not find post with id {}".format(id)
             data = json.dumps({"message": message})
             return Response(data, 404, mimetype="application/json")
-
+        session.delete(post)
+        session.commit()
         # Return the post as JSON
-        #success = "Successfully deleted post with id {}".format(id)
-        #data = json.dumps({"message": success})
-        #return Response(data, 204, mimetype="application/json")
-        # Convert the posts to JSON and return a response
-        data = json.dumps([post.as_dictionary() for post in posts])
+        success = "Successfully deleted post"
+        data = json.dumps({"message": success})
         return Response(data, 204, mimetype="application/json")
+        # Convert the posts to JSON and return a response
+        #data = json.dumps(post.as_dictionary())
+        #return Response(data, 200, mimetype="application/json")
   
 @app.route("/api/posts", methods=["POST"])
 @decorators.accept("application/json")
