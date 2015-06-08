@@ -86,7 +86,7 @@ def edit_post_get(postid):
     #  raise AssertionError("Not Allowed")
     post = session.query(Post).get(postid)
     return render_template("edit_post.html", post=post,postid=postid)
-
+'''
 @app.route("/post/<postid>/edit", methods=["POST"])
 #@login_required
 def edit_post(postid):
@@ -101,7 +101,21 @@ def edit_post(postid):
     )
     session.commit()
     return redirect(url_for("posts"))
+'''
+@app.route("/post/<int:id>/edit", methods=["GET", "POST"])
+#@login_required
+def edit_post(id):
+    if request.method == "POST":
+        post = session.query(Post).get(id)
+        post.title = request.form["title"]
+        post.body = request.form["content"]
+        session.add(post)
+        session.commit()
+        return redirect(url_for("posts"))
 
+    post = session.query(Post).get(id)
+    return render_template("edit_post.html", post=post)
+  
 @app.route("/post/<postid>/delete", methods=["POST"])
 #@login_required
 def delete_post(postid):
