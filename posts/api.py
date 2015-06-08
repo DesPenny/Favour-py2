@@ -107,6 +107,7 @@ def posts_post():
     return Response(data, 201, headers=headers,
                     mimetype="application/json")
   
+  
 @app.route("/api/posts/<id>", methods=["PUT"])
 @decorators.accept("application/json")
 @decorators.require("application/json")
