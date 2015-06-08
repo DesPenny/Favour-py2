@@ -14,8 +14,8 @@
         {{ post.body | safe }}
         {{ post.id }}
         
-        <a href="/api/posts/{{ post.id }}/edit"> Edit Post</a>
-        <form action="/api/posts/{{ post.id }}/delete" method="post">
+        <a href="/post/{{ post.id }}/edit"> Edit Post</a>
+        <form action="/post/{{ post.id }}/delete" method="post">
         <button type="submit" value="remove">Delete</button>
 
     </div>

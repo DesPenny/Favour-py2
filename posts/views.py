@@ -77,6 +77,41 @@ def post(postid=Post.id):
         post=post,
         postid=postid,
     )  
+  
+@app.route("/post/<postid>/edit", methods=["GET"])
+#@login_required
+def edit_post_get(postid):
+    post = session.query(Post).get(postid)
+    #if not post.author_id==current_user.id:
+    #  raise AssertionError("Not Allowed")
+    post = session.query(Post).get(postid)
+    return render_template("edit_post.html", post=post,postid=postid)
+
+@app.route("/post/<postid>/edit", methods=["POST"])
+#@login_required
+def edit_post(postid):
+    post = session.query(Post).get(postid)
+    #if not post.author_id==current_user.id:
+    #  raise AssertionError("Not Allowed")
+    title = request.form["title"]
+    #content = mistune.markdown(request.form["content"])
+    body = request.form["body"]
+    session.query(Post).filter_by(id=postid).update(
+        {"title": title, "body": body}
+    )
+    session.commit()
+    return redirect(url_for("posts"))
+
+@app.route("/post/<postid>/delete", methods=["POST"])
+#@login_required
+def delete_post(postid):
+    post = session.query(Post).get(postid)
+    #if not post.author_id==current_user.id:
+    #  raise AssertionError("Not Allowed")
+    session.query(Post).filter_by(id=postid).delete()
+    session.commit()
+    return redirect(url_for("posts"))
+  
 @app.route('/logout')
 def logout():
     #logout_user()
