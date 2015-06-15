@@ -1,9 +1,10 @@
 from flask import render_template, g
 
 from posts import app
+
 from .database import session
 from .models import Post
-
+import decorators
 import mistune
 from flask import request, redirect, url_for
 #from flask.ext.login import login_required
@@ -130,3 +131,4 @@ def delete_post(postid):
 def logout():
     #logout_user()
     return redirect(url_for('posts'))
+  

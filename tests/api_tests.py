@@ -1,5 +1,3 @@
-
-
 import unittest
 import os
 import json
@@ -309,7 +307,28 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(data["title"], "This Post has been updated")
         self.assertEqual(data["body"], "The body has been edited")
         
-        
+def test_file_upload(self):
+        data = {
+            "file": (StringIO("File contents"), "test.jpg")
+        }
+
+        response = self.client.post("/api/files",
+            data=data,
+            content_type="multipart/form-data",
+            headers=[("Accept", "application/json")]
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.mimetype, "application/json")
+
+        data = json.loads(response.data)
+        self.assertEqual(urlparse(data["path"]).path, "/uploads/test.jpg")
+
+        path = upload_path("test.jpg")
+        self.assertTrue(os.path.isfile(path))
+        with open(path) as f:
+            contents = f.read()
+        self.assertEqual(contents, "File contents")        
         
 if __name__ == "__main__":
     unittest.main()

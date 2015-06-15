@@ -1,12 +1,14 @@
 import json
 
-from flask import request, Response, url_for
+from flask import request, Response, url_for, send_from_directory
 from jsonschema import validate, ValidationError
+from werkzeug.utils import secure_filename
 
 import models
 import decorators
 from posts import app
 from database import session
+from utils import upload_path
 
 # JSON Schema describing the structure of a post
 post_schema = {
@@ -81,8 +83,8 @@ def post_delete(id):
         #return Response(data, 200, mimetype="application/json")
   
 @app.route("/api/posts", methods=["POST"])
-@decorators.accept("application/json")
-@decorators.require("application/json")
+#@decorators.accept("application/json")
+#@decorators.require("application/json")
 def posts_post():
     """ Add a new post """
     data = request.json
@@ -142,4 +144,33 @@ def posts_edit(id):
     headers = {"Location": url_for("post_get", id=post.id)}
     return Response(data, 201, headers=headers,
                     mimetype="application/json")
-                    
+
+@app.route("/uploads/<filename>", methods=["GET"])
+def uploaded_file(filename):
+    return send_from_directory(upload_path(), filename)
+
+@app.route("/api/files", methods=["POST"])
+@decorators.require("multipart/form-data")
+#@decorators.accept("application/json")
+def file_post():
+    file = request.files["file"]
+    if not file or not allowed_file(file.filename):
+        data = {"message": "Could not find file data or filetype not permitted"}
+        return Response(json.dumps(data), 422, mimetype="application/json")
+
+    filename = secure_filename(file.filename)
+    file.save(upload_path(filename))
+    #file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    return redirect(url_for('posts', filename=filename))
+    #db_file = models.File(filename=filename)
+    #session.add(db_file)
+    #session.commit()
+    #file.save(upload_path(filename))
+
+    #data = db_file.as_dictionary()
+    #return Response(json.dumps(data), 201, mimetype="application/json")
+  
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+   
