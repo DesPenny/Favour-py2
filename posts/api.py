@@ -149,10 +149,8 @@ def posts_edit(id):
 def uploaded_file(filename):
     return send_from_directory(upload_path(), filename)
 
-@app.route("/api/files", methods=["POST"])
 
-@decorators.require("multipart/form-data")
-#@decorators.accept("application/json")
+
 def file_post():
     file = request.files["file"]
     if not file:
@@ -161,17 +159,6 @@ def file_post():
 
     filename = secure_filename(file.filename)
     file.save(upload_path(filename))
-    #file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    
     return redirect(url_for('posts', filename=filename))
-    #db_file = models.File(filename=filename)
-    #session.add(db_file)
-    #session.commit()
-    #file.save(upload_path(filename))
-
-    #data = db_file.as_dictionary()
-    #return Response(json.dumps(data), 201, mimetype="application/json")
-'''
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
-'''  
+    
