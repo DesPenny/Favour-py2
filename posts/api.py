@@ -150,7 +150,7 @@ def uploaded_file(filename):
     return send_from_directory(upload_path(), filename)
 
 @app.route("/api/files", methods=["POST"])
-@app.route("/api/post/add", methods=["POST"])
+
 @decorators.require("multipart/form-data")
 #@decorators.accept("application/json")
 def file_post():

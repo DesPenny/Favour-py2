@@ -1,7 +1,7 @@
 from flask import render_template, g
 
 from posts import app
-
+from posts import api
 from .database import session
 from .models import Post
 import decorators
@@ -69,6 +69,7 @@ def add_post_post():
     )
     session.add(post)
     session.commit()
+    api.file_post()
     return redirect(url_for("posts"))
 
 @app.route("/post/<postid>")
