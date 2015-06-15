@@ -1,6 +1,6 @@
 import json
 
-from flask import request, Response, url_for, send_from_directory
+from flask import request, redirect, Response, url_for, send_from_directory
 from jsonschema import validate, ValidationError
 from werkzeug.utils import secure_filename
 
@@ -150,11 +150,12 @@ def uploaded_file(filename):
     return send_from_directory(upload_path(), filename)
 
 @app.route("/api/files", methods=["POST"])
+@app.route("/api/post/add", methods=["POST"])
 @decorators.require("multipart/form-data")
 #@decorators.accept("application/json")
 def file_post():
     file = request.files["file"]
-    if not file or not allowed_file(file.filename):
+    if not file:
         data = {"message": "Could not find file data or filetype not permitted"}
         return Response(json.dumps(data), 422, mimetype="application/json")
 
@@ -169,8 +170,8 @@ def file_post():
 
     #data = db_file.as_dictionary()
     #return Response(json.dumps(data), 201, mimetype="application/json")
-  
+'''
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
-   
+'''  

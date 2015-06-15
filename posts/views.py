@@ -13,6 +13,7 @@ from flask import request, redirect, url_for
 from flask import flash
 #from flask.ext.login import login_user, logout_user
 #from werkzeug.security import check_password_hash
+from werkzeug.utils import secure_filename
 #from .models import User
 
 @app.route("/")
