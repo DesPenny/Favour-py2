@@ -9,7 +9,9 @@
 <h1>
     {{ post.title }}
 </h1>
+<!--<img src="{{ url_for('uploaded_file', filename=filename) }}">-->
 
+<img src="{{ url_for('uploaded_file', filename=filename) }}">
 <p>
 {{ post.body | safe }}
 </p>

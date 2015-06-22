@@ -3,6 +3,8 @@ import json
 from flask import request, redirect, Response, url_for, send_from_directory
 from jsonschema import validate, ValidationError
 from werkzeug.utils import secure_filename
+from werkzeug.exceptions import RequestEntityTooLarge
+
 
 import models
 import decorators
@@ -144,7 +146,7 @@ def posts_edit(id):
     headers = {"Location": url_for("post_get", id=post.id)}
     return Response(data, 201, headers=headers,
                     mimetype="application/json")
-
+'''
 @app.route("/uploads/<filename>", methods=["GET"])
 def uploaded_file(filename):
     return send_from_directory(upload_path(), filename)
@@ -158,7 +160,8 @@ def file_post():
         return Response(json.dumps(data), 422, mimetype="application/json")
 
     filename = secure_filename(file.filename)
-    file.save(upload_path(filename))
-    
+    filename2 = session.query(Post).filter(Post.id == postid).first()
+    file.save(upload_path(filename2))
     return redirect(url_for('posts', filename=filename))
+'''    
     

@@ -6,7 +6,7 @@ from .database import session
 from .models import Post
 import decorators
 import mistune
-from flask import request, redirect, url_for
+from flask import request, redirect, Response, url_for, send_from_directory
 #from flask.ext.login import login_required
 #from flask.ext.login import current_user
 
@@ -14,7 +14,9 @@ from flask import flash
 #from flask.ext.login import login_user, logout_user
 #from werkzeug.security import check_password_hash
 from werkzeug.utils import secure_filename
+from werkzeug.exceptions import RequestEntityTooLarge
 #from .models import User
+from utils import upload_path
 
 @app.route("/")
 #@app.route("/api/posts")
@@ -62,15 +64,19 @@ def add_post_get():
 @app.route("/api/post/add", methods=["POST"])
 #@login_required
 def add_post_post():
-    post = Post(
+    try:
+        post = Post(
         title=request.form["title"],
         body=mistune.markdown(request.form["content"]),
         #author=current_user
-    )
-    session.add(post)
-    session.commit()
-    api.file_post()
-    return redirect(url_for("posts"))
+        )
+        session.add(post)
+        session.commit()
+
+        file_post()
+        return redirect(url_for("posts"))
+    except RequestEntityTooLarge as e:
+      return e
 
 @app.route("/post/<postid>")
 def post(postid=Post.id):
@@ -134,3 +140,21 @@ def logout():
     #logout_user()
     return redirect(url_for('posts'))
   
+@app.route("/uploads/<filename>", methods=["GET"])
+def uploaded_file(filename):
+    filename = 'http://127.0.0.1:8080/uploads/' + filename
+    return send_from_directory(upload_path(), filename)
+
+
+
+def file_post():
+    file = request.files["file"]
+    if not file:
+        data = {"message": "Could not find file data or filetype not permitted"}
+        return Response(json.dumps(data), 422, mimetype="application/json")
+
+    #filename = secure_filename(file.filename)
+    response = session.query(Post.id).order_by('-id').first()
+    filename = secure_filename(str(response[0]))
+    file.save(upload_path(filename))
+    return redirect(url_for('posts', filename=filename))
