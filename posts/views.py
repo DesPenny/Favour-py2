@@ -17,6 +17,9 @@ from werkzeug.utils import secure_filename
 from werkzeug.exceptions import RequestEntityTooLarge
 #from .models import User
 from utils import upload_path
+from PIL import Image
+#from thumbnails import get_thumbnail
+
 
 @app.route("/")
 #@app.route("/api/posts")
@@ -145,7 +148,11 @@ def uploaded_file(filename):
     filename = 'http://127.0.0.1:8080/uploads/' + filename
     return send_from_directory(upload_path(), filename)
 
-
+def gen_thumbnail(filename):
+	  height = width = 50
+	  original = Image.open(upload_path(), filename)
+	  thumbnail = original.resize((width, height))
+	  thumbnail.save(upload_path('thumb_'+filename))
 
 def file_post():
     file = request.files["file"]
@@ -157,4 +164,7 @@ def file_post():
     response = session.query(Post.id).order_by('-id').first()
     filename = secure_filename(str(response[0]))
     file.save(upload_path(filename))
+    gen_thumbnail(filename)
+    #thumbnail = thumbnails.get_thumbnail(upload_path(filename), '50x50', crop='center')
+    #thumbnail.save(upload_path('thumb_'+filename))
     return redirect(url_for('posts', filename=filename))
