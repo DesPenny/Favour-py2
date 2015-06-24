@@ -20,6 +20,7 @@ from utils import upload_path
 from PIL import Image
 #from thumbnails import get_thumbnail
 app.secret_key = 'monkey'
+app.debug = True
 images = Images(app)
 
 @app.route("/")
@@ -88,7 +89,8 @@ def post(postid=Post.id):
     return render_template(
         "single_post.html",
         post=post,
-        filename=secure_filename(postid)
+        filename=secure_filename(postid),
+        width=200
     )  
   
 @app.route("/post/<postid>/edit", methods=["GET"])
