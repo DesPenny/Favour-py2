@@ -1,5 +1,5 @@
 from flask import render_template, g
-
+from flask.ext.images import Images
 from posts import app
 from posts import api
 from .database import session
@@ -19,7 +19,8 @@ from werkzeug.exceptions import RequestEntityTooLarge
 from utils import upload_path
 from PIL import Image
 #from thumbnails import get_thumbnail
-
+app.secret_key = 'monkey'
+images = Images(app)
 
 @app.route("/")
 #@app.route("/api/posts")
@@ -87,7 +88,7 @@ def post(postid=Post.id):
     return render_template(
         "single_post.html",
         post=post,
-        postid=postid,
+        filename=secure_filename(postid)
     )  
   
 @app.route("/post/<postid>/edit", methods=["GET"])
@@ -145,12 +146,11 @@ def logout():
   
 @app.route("/uploads/<filename>", methods=["GET"])
 def uploaded_file(filename):
-    filename = 'http://127.0.0.1:8080/uploads/' + filename
     return send_from_directory(upload_path(), filename)
 
 def gen_thumbnail(filename):
 	  height = width = 50
-	  original = Image.open(upload_path(), filename)
+	  original = Image.open(upload_path(filename))
 	  thumbnail = original.resize((width, height))
 	  thumbnail.save(upload_path('thumb_'+filename))
 
@@ -162,9 +162,9 @@ def file_post():
 
     #filename = secure_filename(file.filename)
     response = session.query(Post.id).order_by('-id').first()
-    filename = secure_filename(str(response[0]))
+    filename = secure_filename(str(response))
     file.save(upload_path(filename))
-    gen_thumbnail(filename)
+    #gen_thumbnail(filename)
     #thumbnail = thumbnails.get_thumbnail(upload_path(filename), '50x50', crop='center')
     #thumbnail.save(upload_path('thumb_'+filename))
-    return redirect(url_for('posts', filename=filename))
+    return filename
