@@ -1,5 +1,5 @@
 from flask import render_template, g
-from flask.ext.images import Images
+from flask.ext.images import Images, resized_img_src
 from posts import app
 from posts import api
 from .database import session
@@ -18,11 +18,12 @@ from werkzeug.exceptions import RequestEntityTooLarge
 #from .models import User
 from utils import upload_path
 from PIL import Image
+
 #from thumbnails import get_thumbnail
 app.secret_key = 'monkey'
 app.debug = True
-images = Images(app)
-
+Images(app)
+print app.root_path
 @app.route("/")
 #@app.route("/api/posts")
 def posts():
@@ -90,7 +91,8 @@ def post(postid=Post.id):
         "single_post.html",
         post=post,
         filename=secure_filename(postid),
-        width=200
+        
+        
     )  
   
 @app.route("/post/<postid>/edit", methods=["GET"])
@@ -146,9 +148,9 @@ def logout():
     #logout_user()
     return redirect(url_for('posts'))
   
-@app.route("/uploads/<filename>", methods=["GET"])
-def uploaded_file(filename):
-    return send_from_directory(upload_path(), filename)
+#@app.route("/uploads/<filename>", methods=["GET"])
+#def uploaded_file(filename):
+#    return send_from_directory(upload_path(), filename)
 
 def gen_thumbnail(filename):
 	  height = width = 50
@@ -170,3 +172,4 @@ def file_post():
     #thumbnail = thumbnails.get_thumbnail(upload_path(filename), '50x50', crop='center')
     #thumbnail.save(upload_path('thumb_'+filename))
     return filename
+    #return send_from_directory(upload_path(), filename)
