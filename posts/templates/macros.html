@@ -5,12 +5,14 @@
             <li>
                 {{ post.datetime | dateformat("%d/%m/%y") }}
             </li>
+            <li>
+                <img src="{{resized_img_src(post.main_image(), width=80)}}"/>
+            </li>
+            
         </ul>
     </div>
     <div class="col-md-10">
-        <h1>
-            <a href="/post/{{ post.id }}">{{ post.title }}</a>
-        </h1>
+        <h1><a href="/post/{{ post.id }}">{{ post.title }}</a></h1>
         {{ post.body | safe }}
         {{ post.id }}
         

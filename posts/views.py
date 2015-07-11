@@ -28,11 +28,16 @@ print app.root_path
 #@app.route("/api/posts")
 def posts():
     posts = session.query(Post)
+    #postid = session.query(Post.id)
+    #print postid
     #posts = posts.order_by(Post.datetime.desc())
     posts = posts.all()
     return render_template("posts.html",
-        posts=posts
+        posts=posts,
+        
+    
     )
+    
 '''
 @app.route("/")
 @app.route("/page/<int:page>")
@@ -78,8 +83,8 @@ def add_post_post():
         )
         session.add(post)
         session.commit()
-
-        file_post()
+    
+        file_post(post)
         return redirect(url_for("posts"))
     except RequestEntityTooLarge as e:
       return e
@@ -90,7 +95,6 @@ def post(postid=Post.id):
     return render_template(
         "single_post.html",
         post=post,
-        filename=secure_filename(postid),
         
         
     )  
@@ -158,18 +162,16 @@ def gen_thumbnail(filename):
 	  thumbnail = original.resize((width, height))
 	  thumbnail.save(upload_path('thumb_'+filename))
 
-def file_post():
+def file_post(post):
     file = request.files["file"]
     if not file:
         data = {"message": "Could not find file data or filetype not permitted"}
         return Response(json.dumps(data), 422, mimetype="application/json")
 
     #filename = secure_filename(file.filename)
-    response = session.query(Post.id).order_by('-id').first()
-    filename = secure_filename(str(response))
-    file.save(upload_path(filename))
+    
+    file.save(upload_path(post.main_image()))
     #gen_thumbnail(filename)
     #thumbnail = thumbnails.get_thumbnail(upload_path(filename), '50x50', crop='center')
     #thumbnail.save(upload_path('thumb_'+filename))
-    return filename
     #return send_from_directory(upload_path(), filename)

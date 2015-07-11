@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Sequence, DateTime
 import datetime
 from database import Base
+from werkzeug.utils import secure_filename
 
 class Post(Base):
     __tablename__ = "posts"
@@ -16,5 +17,9 @@ class Post(Base):
             "title": self.title,
             "body": self.body,
             #"datetime":self.datetime
+            
         }
         return post
+        
+    def main_image(self):
+        return secure_filename(str(self.id))
