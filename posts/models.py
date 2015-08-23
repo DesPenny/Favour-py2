@@ -2,7 +2,26 @@ from sqlalchemy import Column, Integer, String, Sequence, DateTime
 import datetime
 from database import Base
 from werkzeug.utils import secure_filename
+from flask.ext.login import UserMixin
 
+class User(Base, UserMixin):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(128))
+    email = Column(String(128), unique=True)
+    password = Column(String(128))
+    
+    def as_dictionary(self):
+        user = {
+            "id": self.id,
+            "name": self.name,
+            "email": self.email,
+            "password":self.password
+            
+        }
+        return user
+    
 class Post(Base):
     __tablename__ = "posts"
 
@@ -20,6 +39,7 @@ class Post(Base):
             
         }
         return post
-        
+    
     def main_image(self):
         return secure_filename(str(self.id))
+        
