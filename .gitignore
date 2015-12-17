@@ -4,4 +4,4 @@ posts/*.pyc
 tests/*.pyc
 .profile
 migrations/
-uploads/
+posts/uploads/

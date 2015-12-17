@@ -24,21 +24,21 @@ app.secret_key = 'monkey'
 app.debug = True
 Images(app)
 print app.root_path
+'''
 @app.route("/")
 #@app.route("/api/posts")
 def posts():
     posts = session.query(Post)
-    #postid = session.query(Post.id)
-    #print postid
-    #posts = posts.order_by(Post.datetime.desc())
+    postid = session.query(Post.id)
+    posts = posts.order_by(Post.datetime.desc())
     posts = posts.all()
     return render_template("posts.html",
         posts=posts,
         
     
     )
-    
-'''
+ '''   
+
 @app.route("/")
 @app.route("/page/<int:page>")
 def posts(page=1, paginate_by=10):
@@ -65,21 +65,21 @@ def posts(page=1, paginate_by=10):
         page=page,
         total_pages=total_pages
     )
-'''
+
 @app.route("/api/post/add", methods=["GET"])
-@login_required
+#@login_required
 def add_post_get():
     return render_template("add_post.html")
   
 
 @app.route("/api/post/add", methods=["POST"])
-@login_required
+#@login_required
 def add_post_post():
     try:
         post = Post(
         title=request.form["title"],
         body=mistune.markdown(request.form["content"]),
-        author=current_user
+        #author=current_user
         )
         session.add(post)
         session.commit()
