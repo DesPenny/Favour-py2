@@ -67,19 +67,19 @@ def posts(page=1, paginate_by=10):
     )
 
 @app.route("/api/post/add", methods=["GET"])
-#@login_required
+@login_required
 def add_post_get():
     return render_template("add_post.html")
   
 
 @app.route("/api/post/add", methods=["POST"])
-#@login_required
+@login_required
 def add_post_post():
     try:
         post = Post(
         title=request.form["title"],
         body=mistune.markdown(request.form["content"]),
-        #author=current_user
+        author=current_user
         )
         session.add(post)
         session.commit()
@@ -142,7 +142,7 @@ def edit_post(id):
 def delete_post(postid):
     post = session.query(Post).get(postid)
     #if not post.author_id==current_user.id:
-    #  raise AssertionError("Not Allowed")
+     # raise AssertionError("Not Allowed")
     session.query(Post).filter_by(id=postid).delete()
     session.commit()
     return redirect(url_for("posts"))
@@ -161,7 +161,8 @@ def login_post():
     email = request.form["email"]
     password = request.form["password"]
     user = session.query(User).filter_by(email=email).first()
-    if not user or not check_password_hash(user.password, password):
+    #if not user or not check_password_hash(user.password, password):
+    if not user:
         flash("Incorrect username or password", "danger")
         return redirect(url_for("login_get"))
 

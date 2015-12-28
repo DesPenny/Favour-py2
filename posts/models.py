@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Sequence, DateTime
+from sqlalchemy import Column, Integer, String, Sequence, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
 import datetime
 from database import Base
 from werkzeug.utils import secure_filename
@@ -11,6 +12,7 @@ class User(Base, UserMixin):
     name = Column(String(128))
     email = Column(String(128), unique=True)
     password = Column(String(128))
+    posts = relationship("Post", backref="author")
     
     def as_dictionary(self):
         user = {
@@ -29,13 +31,15 @@ class Post(Base):
     title = Column(String(128))
     body = Column(String(1024))
     datetime = Column(DateTime, default=datetime.datetime.now)
+    author_id = Column(Integer, ForeignKey('users.id'))
     
     def as_dictionary(self):
         post = {
             "id": self.id,
             "title": self.title,
             "body": self.body,
-            "datetime":self.datetime
+            "datetime":self.datetime,
+            "author_id":self.author_id
             
         }
         return post
