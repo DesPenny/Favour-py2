@@ -2,6 +2,7 @@ from flask import render_template, g
 from flask.ext.images import Images, resized_img_src
 from posts import app
 from posts import api
+from .forms import RegistrationForm
 from .database import session
 from .models import Post
 import decorators
@@ -9,7 +10,7 @@ import mistune
 from flask import request, redirect, Response, url_for, send_from_directory
 from flask.ext.login import login_required
 from flask.ext.login import current_user
-
+from flask.ext.wtf import Form
 from flask import flash
 from flask.ext.login import login_user, logout_user
 from werkzeug.security import check_password_hash
@@ -91,7 +92,7 @@ def add_post_post():
 
 @app.route("/post/<postid>")
 def post(postid=Post.id):
-    post = session.query(Post).filter(Post.id == postid).first()
+    post = session.query(Post).filter(Post.id == postid)
     return render_template(
         "single_post.html",
         post=post,
@@ -100,12 +101,13 @@ def post(postid=Post.id):
     )  
   
 @app.route("/post/<postid>/edit", methods=["GET"])
-#@login_required
+@login_required
 def edit_post_get(postid):
     post = session.query(Post).get(postid)
-    #if not post.author_id==current_user.id:
-    #  raise AssertionError("Not Allowed")
-    post = session.query(Post).get(postid)
+    print post
+    if not post.author_id==current_user.id:
+      raise AssertionError("Not Allowed")
+    #post = session.query(Post).get(postid)
     return render_template("edit_post.html", post=post,postid=postid)
 '''
 @app.route("/post/<postid>/edit", methods=["POST"])
@@ -123,8 +125,8 @@ def edit_post(postid):
     session.commit()
     return redirect(url_for("posts"))
 '''
-@app.route("/post/<int:id>/edit", methods=["GET", "POST"])
-#@login_required
+@app.route("/post/<int:id>/edit", methods=["POST"])
+@login_required
 def edit_post(id):
     if request.method == "POST":
         post = session.query(Post).get(id)
@@ -137,19 +139,23 @@ def edit_post(id):
     post = session.query(Post).get(id)
     return render_template("edit_post.html", post=post)
   
-@app.route("/post/<postid>/delete", methods=["POST"])
+@app.route("/post/<int:id>/delete", methods=["GET","POST"])
 #@login_required
-def delete_post(postid):
-    post = session.query(Post).get(postid)
+def delete_post(id):
+    post = session.query(Post).get(id)
+    #print post
     #if not post.author_id==current_user.id:
      # raise AssertionError("Not Allowed")
-    session.query(Post).filter_by(id=postid).delete()
+    #session.query(Post).filter_by(post).delete()
+    session.delete(post)
     session.commit()
-    return redirect(url_for("posts"))
+    return redirect(url_for('posts'))
+    
   
 @app.route('/logout')
 def logout():
-    #logout_user()
+    logout_user()
+    flash('You have been logged out.')
     return redirect(url_for('posts'))
     
 @app.route("/login", methods=["GET"])
@@ -168,6 +174,18 @@ def login_post():
 
     login_user(user)
     return redirect(request.args.get('next') or url_for("posts"))
+    
+@app.route('/signup', methods=['GET' , 'POST'])
+def signup():
+    form=RegistrationForm()
+    if request.method == 'GET':
+        return render_template('signup.html')
+    user = User(name=form.name.data, email=form.email.data, password=form.password.data)
+    session.add(user)
+    session.commit()
+    flash('User successfully registered')
+    return redirect(url_for('posts'))
+        
   
 #@app.route("/uploads/<filename>", methods=["GET"])
 #def uploaded_file(filename):
