@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Sequence, DateTime, ForeignKey, 
 from sqlalchemy.orm import relationship
 import datetime
 from database import Base
+from .database import session
 from werkzeug.utils import secure_filename
 from flask.ext.login import UserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
@@ -41,7 +42,7 @@ class User(Base, UserMixin):
         if data.get('confirm') != self.id:
             return False
         self.confirmed = True
-        add(self)
+        session.add(self)
         return True
     
 class Post(Base):

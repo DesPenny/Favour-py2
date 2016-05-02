@@ -19,6 +19,8 @@ from werkzeug.exceptions import RequestEntityTooLarge
 from .models import User
 from utils import upload_path
 from PIL import Image
+from .email import send_email
+
 
 #from thumbnails import get_thumbnail
 app.secret_key = 'monkey'
@@ -178,14 +180,15 @@ def login_post():
 @app.route('/signup', methods=['GET' , 'POST'])
 def signup():
     form=RegistrationForm()
-    if request.method == 'GET':
-        return render_template('signup.html')
-    user = User(name=form.name.data, email=form.email.data, password=form.password.data)
-    session.add(user)
-    session.commit()
-    flash('User successfully registered')
-    return redirect(url_for('posts'))
-        
+    if request.method == 'POST':
+        user = User(name=form.name.data, email=form.email.data, password=form.password.data)
+        session.add(user)
+        session.commit()
+        token = user.generate_confirmation_token()
+        send_email(user.email, 'Confirm your Account', 'email/confirm', user=user, token=token)
+        flash('A confirmation email has been sent to you.')
+        return redirect(url_for('posts'))
+    return render_template('signup.html')    
   
 #@app.route("/uploads/<filename>", methods=["GET"])
 #def uploaded_file(filename):
