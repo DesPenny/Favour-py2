@@ -188,7 +188,18 @@ def signup():
         send_email(user.email, 'Confirm your Account', 'email/confirm', user=user, token=token)
         flash('A confirmation email has been sent to you.')
         return redirect(url_for('posts'))
-    return render_template('signup.html')    
+    return render_template('signup.html')  
+    
+@app.route('/confirm/<token>')
+@login_required
+def confirm(token):
+    if current_user.confirmed:
+        return redirect(url_for('posts'))
+    if current_user.confirm(token):
+        flash('You have confirmed your account. Thanks!')
+    else:
+        flash('The confirmation link is invalid or has expired.')
+    return redirect(url_for('posts'))
   
 #@app.route("/uploads/<filename>", methods=["GET"])
 #def uploaded_file(filename):
