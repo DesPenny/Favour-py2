@@ -13,7 +13,7 @@ from flask.ext.login import current_user
 from flask.ext.wtf import Form
 from flask import flash
 from flask.ext.login import login_user, logout_user
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import RequestEntityTooLarge
 from .models import User
@@ -169,8 +169,8 @@ def login_post():
     email = request.form["email"]
     password = request.form["password"]
     user = session.query(User).filter_by(email=email).first()
-    #if not user or not check_password_hash(user.password, password):
-    if not user:
+    if not user or not check_password_hash(user.password, password):
+    #if not user:
         flash("Incorrect username or password", "danger")
         return redirect(url_for("login_get"))
 
@@ -181,7 +181,7 @@ def login_post():
 def signup():
     form=RegistrationForm()
     if request.method == 'POST':
-        user = User(name=form.name.data, email=form.email.data, password=form.password.data)
+        user = User(name=form.name.data, email=form.email.data, password=generate_password_hash(form.password.data))
         session.add(user)
         session.commit()
         token = user.generate_confirmation_token()
